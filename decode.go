@@ -34,7 +34,6 @@ func stry(s *C.yaml_char_t) string {
 	return C.GoString((*C.char)(unsafe.Pointer(s)))
 }
 
-
 // ----------------------------------------------------------------------------
 // Parser, produces a node tree out of a libyaml event stream.
 
@@ -196,7 +195,6 @@ func (p *parser) mapping() *node {
 	return n
 }
 
-
 // ----------------------------------------------------------------------------
 // Decoder, unmarshals a node into a provided value.
 
@@ -292,7 +290,7 @@ func (d *decoder) alias(n *node, out reflect.Value) (good bool) {
 	}
 	d.aliases[n.value] = true
 	good = d.unmarshal(an, out)
-	d.aliases[n.value] = false, false
+	delete(d.aliases, n.value)
 	return good
 }
 
