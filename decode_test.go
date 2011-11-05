@@ -160,7 +160,7 @@ func (s *S) TestUnmarshalErrors(c *C) {
 	for _, item := range unmarshalErrorTests {
 		var value interface{}
 		err := goyaml.Unmarshal([]byte(item.data), &value)
-		c.Assert(err, Matches, item.error, Bug("Partial unmarshal: %#v", value))
+		c.Assert(err.Error(), Matches, item.error, Bug("Partial unmarshal: %#v", value))
 	}
 }
 
