@@ -5,8 +5,8 @@ import "C"
 
 import (
 	"reflect"
-	"unsafe"
 	"strconv"
+	"unsafe"
 )
 
 type encoder struct {

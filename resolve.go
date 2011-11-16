@@ -1,9 +1,9 @@
 package goyaml
 
 import (
+	"math"
 	"strconv"
 	"strings"
-	"math"
 )
 
 // TODO: merge, timestamps, base 60 floats, omap.
