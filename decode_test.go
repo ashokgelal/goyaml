@@ -3,8 +3,8 @@ package goyaml_test
 import (
 	. "launchpad.net/gocheck"
 	"launchpad.net/goyaml"
-	"reflect"
 	"math"
+	"reflect"
 )
 
 var unmarshalIntTest = 123
