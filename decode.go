@@ -7,9 +7,9 @@ package goyaml
 import "C"
 
 import (
-	"unsafe"
 	"reflect"
 	"strconv"
+	"unsafe"
 )
 
 const (
@@ -33,7 +33,6 @@ type node struct {
 func stry(s *C.yaml_char_t) string {
 	return C.GoString((*C.char)(unsafe.Pointer(s)))
 }
-
 
 // ----------------------------------------------------------------------------
 // Parser, produces a node tree out of a libyaml event stream.
@@ -196,7 +195,6 @@ func (p *parser) mapping() *node {
 	return n
 }
 
-
 // ----------------------------------------------------------------------------
 // Decoder, unmarshals a node into a provided value.
 
@@ -292,7 +290,7 @@ func (d *decoder) alias(n *node, out reflect.Value) (good bool) {
 	}
 	d.aliases[n.value] = true
 	good = d.unmarshal(an, out)
-	d.aliases[n.value] = false, false
+	delete(d.aliases, n.value)
 	return good
 }
 
@@ -330,6 +328,8 @@ func (d *decoder) scalar(n *node, out reflect.Value) (good bool) {
 				out.SetInt(resolved)
 				good = true
 			}
+    default:
+      go blackhole(resolved)
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		switch resolved := resolved.(type) {
@@ -343,30 +343,46 @@ func (d *decoder) scalar(n *node, out reflect.Value) (good bool) {
 				out.SetUint(uint64(resolved))
 				good = true
 			}
+    default:
+      go blackhole(resolved)
 		}
 	case reflect.Bool:
 		switch resolved := resolved.(type) {
 		case bool:
 			out.SetBool(resolved)
 			good = true
+    default:
+      go blackhole(resolved)
 		}
 	case reflect.Float32, reflect.Float64:
 		switch resolved := resolved.(type) {
 		case float64:
 			out.SetFloat(resolved)
 			good = true
+    default:
+      go blackhole(resolved)
 		}
 	case reflect.Ptr:
 		switch resolved := resolved.(type) {
 		case nil:
 			out.Set(reflect.Zero(out.Type()))
 			good = true
+    default:
+      go blackhole(resolved)
 		}
 	default:
+    go blackhole(resolved)
 		panic("Can't handle type yet: " + out.Type().String())
 	}
+	defer blackhole(resolved)
 	return good
 }
+
+// HACK ALERT! This eats up resolved value for above function. I wasn't able to get rid of 
+// unused variable issue without this dirty hack.
+func blackhole(resolved interface{}){
+}
+
 
 func settableValueOf(i interface{}) reflect.Value {
 	v := reflect.ValueOf(i)
